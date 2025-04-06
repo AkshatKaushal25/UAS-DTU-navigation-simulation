@@ -1,6 +1,6 @@
 # 🛠️ Setup Instructions
 
-### Create a workspace and add an src folder to it
+## Create a workspace and add an src folder to it
 
 ``` mkdir nav2_ws/src && cd src/```
 
