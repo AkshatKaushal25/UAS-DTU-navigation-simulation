@@ -46,7 +46,7 @@ def generate_launch_description():
             name="laser_costmap",
             output="screen",
             parameters=[{
-                "use_sim_time": True,
+                "use_sim_time": False,
                 "global_frame": "map",
                 "robot_base_frame": "base_link",
                 "update_frequency": 5.0,

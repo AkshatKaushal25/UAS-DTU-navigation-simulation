@@ -10,7 +10,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/config', ['config/nav2_params.yaml', 'config/slam_params.yaml']),
+        ('share/' + package_name + '/config', ['config/nav2_params.yaml']),
+        ('share/' + package_name + '/config', ['config/slam_params.yaml']),
         ('share/' + package_name + '/launch', ['launch/lirovo.launch.py']),
     ],
     install_requires=['setuptools'],
@@ -23,6 +24,7 @@ setup(
     entry_points={
         'console_scripts': [
             'mavros_bridge = lirovo.mavros_bridge:main',
+            'pointcloud_processor = lirovo.pointcloud_processor:main',
         ],
     },
 )

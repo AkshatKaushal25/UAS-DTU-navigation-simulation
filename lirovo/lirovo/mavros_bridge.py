@@ -14,7 +14,7 @@ from geometry_msgs.msg import TransformStamped
 class MavrosOdomBridge(Node):
     def __init__(self):
         super().__init__('mavros_odom_bridge')
-
+        self.latest_odom_msg = None
         qos = QoSProfile(depth=10)
         qos.reliability = ReliabilityPolicy.BEST_EFFORT
 
@@ -29,23 +29,71 @@ class MavrosOdomBridge(Node):
             qos
         )
 
+        timer_period = 0.1  # 50 ms = 20 Hz
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+        #self.timer2 = self.create_timer(timer_period,self.odom_callback)
+
+    # def odom_callback(self, odom_msg: Odometry):
+    #     now = self.get_clock().now().to_msg()
+    #     odom = Odometry()
+    #     odom.header = odom_msg.header
+    #     odom.header.stamp = now
+    #     odom.header.frame_id = 'odom'
+    #     odom.child_frame_id = 'base_link'
+    #     odom.pose = odom_msg.pose
+    #     odom.twist = odom_msg.twist
+    #     self.odom_pub.publish(odom)
+    
+    #     tf = TransformStamped()
+    #     tf.header = odom_msg.header
+    #     tf.header.frame_id = 'odom'
+    #     tf.child_frame_id = 'base_link'
+    #     tf.transform.translation.x = odom_msg.pose.pose.position.x
+    #     tf.transform.translation.y = odom_msg.pose.pose.position.y
+    #     tf.transform.translation.z = odom_msg.pose.pose.position.z
+    #     tf.transform.rotation = odom_msg.pose.pose.orientation
+    #     self.tf_broadcaster.sendTransform(tf)
+
     def odom_callback(self, odom_msg: Odometry):
+    #         odom = Odometry()
+    #         #odom.header = odom_msg.header
+    #         odom.header.stamp = self.get_clock().now().to_msg()
+    #         odom.header.frame_id = 'odom'
+    #         odom.child_frame_id = 'base_link'
+    #         odom.pose = odom_msg.pose
+    #         odom.twist = odom_msg.twist
+    #         self.odom_pub.publish(odom)
+
+    #         self.latest_odom_msg = odom  # Store for timer
+
+        self.latest_odom_msg = odom_msg
+
+    def timer_callback(self):
+        if self.latest_odom_msg is None:
+            return
+
+        # Get current time for both /odom and /tf
+        current_time = self.get_clock().now().to_msg()
+
+        # Publish Odometry at fixed rate
         odom = Odometry()
-        odom.header = odom_msg.header
+        odom.header.stamp = current_time
         odom.header.frame_id = 'odom'
         odom.child_frame_id = 'base_link'
-        odom.pose = odom_msg.pose
-        odom.twist = odom_msg.twist
+        odom.pose = self.latest_odom_msg.pose
+        odom.twist = self.latest_odom_msg.twist
         self.odom_pub.publish(odom)
 
+        # Publish Transform at fixed rate
         tf = TransformStamped()
-        tf.header = odom_msg.header
+        tf.header.stamp = current_time
         tf.header.frame_id = 'odom'
         tf.child_frame_id = 'base_link'
-        tf.transform.translation.x = odom_msg.pose.pose.position.x
-        tf.transform.translation.y = odom_msg.pose.pose.position.y
-        tf.transform.translation.z = odom_msg.pose.pose.position.z
-        tf.transform.rotation = odom_msg.pose.pose.orientation
+        tf.transform.translation.x = odom.pose.pose.position.x
+        tf.transform.translation.y = odom.pose.pose.position.y
+        tf.transform.translation.z = odom.pose.pose.position.z
+        tf.transform.rotation = odom.pose.pose.orientation
+
         self.tf_broadcaster.sendTransform(tf)
 
 
