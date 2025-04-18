@@ -2,7 +2,7 @@
 
 ### Create a workspace and add an src folder to it
 
-``` mkdir -p nav2_ws/src && cd src/```
+``` mkdir -p nav2_ws/src && cd nav2_ws/src/```
 
 ### Clone the repo
 
