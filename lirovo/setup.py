@@ -12,6 +12,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/config', ['config/nav2_params.yaml']),
         ('share/' + package_name + '/config', ['config/slam_params.yaml']),
+        ('share/' + package_name + '/config', ['config/localization.yaml']),
         ('share/' + package_name + '/launch', ['launch/lirovo.launch.py']),
     ],
     install_requires=['setuptools'],

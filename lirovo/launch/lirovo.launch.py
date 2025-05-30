@@ -1,14 +1,15 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import IncludeLaunchDescription, TimerAction
+from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.actions import TimerAction
 import os
 from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
     namePackage = 'lirovo'
-    slam_params_path = os.path.join(get_package_share_directory(namePackage), 'config', 'slam_params.yaml')
-    nav2_params_path = os.path.join(get_package_share_directory(namePackage), 'config', 'nav2_params.yaml')
+    slam_params_path = os.path.join(get_package_share_directory(namePackage),'config','slam_params.yaml')
+    nav2_params_path = os.path.join(get_package_share_directory(namePackage),'config','nav2_params.yaml')
     print(f"SLAM params path: {slam_params_path}")
 
     pkg_nav2_dir = get_package_share_directory('nav2_bringup')
@@ -20,29 +21,22 @@ def generate_launch_description():
         launch_arguments={
             'params_file': nav2_params_path,
             'autostart': 'True',
-            'map': 'map',
-        }.items()
+            'map': 'map',  
+        }.items() 
     )
-
     delayed_nav2_launch = TimerAction(
-        period=3.0,
-        actions=[nav2_launch]
-    )
-
-    rviz_launch_cmd = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        arguments=[
-            '-d', os.path.join(
-                get_package_share_directory('nav2_bringup'),
-                'rviz',
-                'nav2_default_view.rviz'
-            )
-        ]
-    )
+    period=3.0,
+    actions=[nav2_launch]
+)
 
     return LaunchDescription([
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'lidar'],
+            parameters=[{'use_sim_time': False}],
+            name='static_tf_lidar'
+        ),
         Node(
             package='pointcloud_to_laserscan',
             executable='pointcloud_to_laserscan_node',
@@ -50,7 +44,7 @@ def generate_launch_description():
             parameters=[{
                 'target_frame': 'base_link',
                 'transform_tolerance': 0.5,
-                'min_height': -1.0,
+                'min_height': -0.5,
                 'max_height': 1.0,
                 'angle_min': -3.14159,
                 'angle_max': +3.14159,
@@ -68,13 +62,12 @@ def generate_launch_description():
                 ('scan', '/scan'),
             ],
         ),
-        Node(
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'lidar'],
-            parameters=[{'use_sim_time': False}],
-            name='static_tf_lidar'
-        ),
+        # Node(
+        #     package='tf2_ros',
+        #     executable='static_transform_publisher',
+        #     arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom'],
+        #     name='static_tf_odom'
+        # ),
         Node(
             package='lirovo',
             executable='mavros_bridge',
@@ -89,6 +82,15 @@ def generate_launch_description():
             output='screen',
             parameters=[{'use_sim_time': False}]
         ),
+        Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_filter_node',
+        output='screen',
+        parameters=[os.path.join(
+            get_package_share_directory(namePackage),
+            'config', 'localization.yaml')],
+        ),
         TimerAction(
             period=1.0,
             actions=[
@@ -100,7 +102,6 @@ def generate_launch_description():
                     parameters=[slam_params_path],
                 ),
             ]
-        ),
-        delayed_nav2_launch,
-        rviz_launch_cmd
+        ),        
+        delayed_nav2_launch
     ])

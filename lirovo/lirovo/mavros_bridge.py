@@ -24,48 +24,15 @@ class MavrosOdomBridge(Node):
 
         self.subscription = self.create_subscription(
             Odometry,
-            '/mavros/local_position/odom',
+            '/odometry/filtered',
             self.odom_callback,
             qos
         )
 
         timer_period = 0.1  # 50 ms = 20 Hz
         self.timer = self.create_timer(timer_period, self.timer_callback)
-        #self.timer2 = self.create_timer(timer_period,self.odom_callback)
-
-    # def odom_callback(self, odom_msg: Odometry):
-    #     now = self.get_clock().now().to_msg()
-    #     odom = Odometry()
-    #     odom.header = odom_msg.header
-    #     odom.header.stamp = now
-    #     odom.header.frame_id = 'odom'
-    #     odom.child_frame_id = 'base_link'
-    #     odom.pose = odom_msg.pose
-    #     odom.twist = odom_msg.twist
-    #     self.odom_pub.publish(odom)
-    
-    #     tf = TransformStamped()
-    #     tf.header = odom_msg.header
-    #     tf.header.frame_id = 'odom'
-    #     tf.child_frame_id = 'base_link'
-    #     tf.transform.translation.x = odom_msg.pose.pose.position.x
-    #     tf.transform.translation.y = odom_msg.pose.pose.position.y
-    #     tf.transform.translation.z = odom_msg.pose.pose.position.z
-    #     tf.transform.rotation = odom_msg.pose.pose.orientation
-    #     self.tf_broadcaster.sendTransform(tf)
 
     def odom_callback(self, odom_msg: Odometry):
-    #         odom = Odometry()
-    #         #odom.header = odom_msg.header
-    #         odom.header.stamp = self.get_clock().now().to_msg()
-    #         odom.header.frame_id = 'odom'
-    #         odom.child_frame_id = 'base_link'
-    #         odom.pose = odom_msg.pose
-    #         odom.twist = odom_msg.twist
-    #         self.odom_pub.publish(odom)
-
-    #         self.latest_odom_msg = odom  # Store for timer
-
         self.latest_odom_msg = odom_msg
 
     def timer_callback(self):
