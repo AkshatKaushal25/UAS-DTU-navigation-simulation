@@ -16,6 +16,8 @@ class PointCloudTimestampSync(Node):
         msg.header.stamp = self.get_clock().now().to_msg()
         self.pub.publish(msg)
 
+    
+
 def main(args=None):
     rclpy.init(args=args)
     node = PointCloudTimestampSync()
