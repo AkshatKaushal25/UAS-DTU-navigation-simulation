@@ -75,13 +75,13 @@ def generate_launch_description():
         #     arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom'],
         #     name='static_tf_odom'
         # ),
-        #Node(
-#            package='lirovo',
- #           executable='mavros_bridge',
-  #          name='mavros_bridge',
-   #         output='screen',
-    #        parameters=[{'use_sim_time': False}]
-    #    ),
+        Node(
+            package='lirovo',
+            executable='mavros_bridge',
+            name='mavros_bridge',
+            output='screen',
+            parameters=[{'use_sim_time': False}]
+       ),
 #        Node(
  #       package='robot_localization',
   #      executable='ekf_node',
