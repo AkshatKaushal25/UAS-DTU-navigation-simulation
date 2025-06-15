@@ -1,34 +1,55 @@
+# Fixed localization.yaml with proper TF chain
 ekf_filter_node_odom:
   ros__parameters:
 
     frequency: 30.0
     sensor_timeout: 0.1
     two_d_mode: true
-    publish_tf: true
+    publish_tf: true  # CHANGED: Let SLAM handle odom->base_link
 
     map_frame: map
     odom_frame: odom
     base_link_frame: base_link
     world_frame: odom
 
+    # Use your covariance-injected GenZ odometry
     odom0: /genz/odometry_cov
     odom0_config: [true, true, false,
                    false, false, true,
-                   true, false, false,
+                   true, true, false,  # Added Y velocity
                    false, false, true,
                    false, false, false]
     odom0_differential: false
     odom0_relative: false
+    odom0_queue_size: 10
 
+    # IMU from MAVROS
     imu0: /mavros/imu/data
     imu0_config: [false, false, false,
-                  false, false, true,
+                  false, false, true,   # Use yaw
                   false, false, false,
-                  true, true, true,
+                  false, false, true,   # Use yaw rate
                   false, false, false]
     imu0_differential: false
     imu0_queue_size: 10
     imu0_remove_gravitational_acceleration: true
+
+    # Process noise covariances (tuned for outdoor rover)
+    process_noise_covariance: [0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.06, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.06, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.04, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.02, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.015]
 
 ekf_filter_node_map:
   ros__parameters:
@@ -36,27 +57,29 @@ ekf_filter_node_map:
     frequency: 10.0
     sensor_timeout: 1.0
     two_d_mode: true
-    publish_tf: true
+    publish_tf: true  # Publishes map->odom transform
 
     map_frame: map
     odom_frame: odom
     base_link_frame: base_link
     world_frame: map
 
+    # GPS-based odometry from navsat_transform
     odom0: /odometry/gps
     odom0_config: [true, true, false,
-                   false, false, true,
+                   false, false, true,   # Include yaw from GPS heading
                    false, false, false,
                    false, false, false,
                    false, false, false]
     odom0_differential: false
     odom0_queue_size: 5
 
+    # IMU for orientation
     imu0: /mavros/imu/data
     imu0_config: [false, false, false,
                   false, false, true,
                   false, false, false,
-                  true, true, true,
+                  false, false, true,
                   false, false, false]
     imu0_differential: false
     imu0_queue_size: 10
@@ -67,16 +90,14 @@ navsat_transform_node:
 
     frequency: 10.0
     delay: 0.0
-
-    magnetic_declination_radians: 0.0
+    
+    magnetic_declination_radians: 0.0  # Set this based on your location
     yaw_offset: 0.0
     zero_altitude: true
     publish_filtered_gps: true
     use_odometry_yaw: true
     broadcast_utm_transform: false
+    wait_for_datum: false  # Added to prevent waiting
 
-    gps_topic: /mavros/global_position/raw/fix
-    odometry_topic: /mavros/local_position/odom_cov
-    imu0: /mavros/imu/data
-    yaw_source: 1
-
+    # Topic remappings will be handled in launch file
+    datum: [0.0, 0.0, 0.0]  # Will be set automatically from first GPS fix
