@@ -48,7 +48,7 @@ def generate_launch_description():
             name='ekf_filter_node_map',
 	        output='screen',
             parameters=[parameters_file_path],
-            remappings=[('odometry/filtered', 'ododmetry/global')]
+            remappings=[('odometry/filtered', 'odometry/global')]
            ),           
     launch_ros.actions.Node(
             package='robot_localization', 
