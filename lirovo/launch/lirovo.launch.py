@@ -82,15 +82,15 @@ def generate_launch_description():
             output='screen',
             parameters=[{'use_sim_time': False}]
         ),
-        Node(
-        package='robot_localization',
-        executable='ekf_node',
-        name='ekf_filter_node',
-        output='screen',
-        parameters=[os.path.join(
-            get_package_share_directory(namePackage),
-            'config', 'localization.yaml')],
-        ),
+#        Node(
+#       package='robot_localization',
+ #       executable='ekf_node',
+  #      name='ekf_filter_node',
+   #     output='screen',
+    #    parameters=[os.path.join(
+     #       get_package_share_directory(namePackage),
+      #      'config', 'localization.yaml')],
+       # ),
         Node(
             package='lirovo',
             executable='navigator',
