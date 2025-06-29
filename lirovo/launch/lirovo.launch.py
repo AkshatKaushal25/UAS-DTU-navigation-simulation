@@ -21,9 +21,10 @@ def generate_launch_description():
         launch_arguments={
             'params_file': nav2_params_path,
             'autostart': 'True',
-            'map': 'map',  
+            'map': 'map',
         }.items() 
     )
+    
     delayed_nav2_launch = TimerAction(
     period=3.0,
     actions=[nav2_launch]

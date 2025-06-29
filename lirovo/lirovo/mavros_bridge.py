@@ -101,7 +101,7 @@ def main(args=None):
         print("Shutting down MAVROS Bridge...")
     finally:
         odom_bridge.destroy_node()
-        vel_bridge.destroy_node()
+        #vel_bridge.destroy_node()
         rclpy.shutdown()
 
 if __name__ == '__main__':
