@@ -30,12 +30,12 @@
       sudo apt update
       bash sudo apt install -y wget libprotobuf-dev libprotobuf23 
       wget https://github.com/Blickfeld/blickfeld-scanner-lib/releases/latest/download/blickfeld-scanner-lib-dev-testing-Linux.deb  
-      sudo dpkg -i blickfeld-scanner-lib-dev-testing-Linux.deb``` 
+      sudo dpkg -i blickfeld-scanner-lib-dev-testing-Linux.deb 
 
 2. **Diagnostic updater**  
     ```sudo apt install ros-humble-diagnostic-updater 
        sudo apt install ros-humble-diagnostic-updater 
-       sudo apt install ros-humble-diagnostic-msgs```
+       sudo apt install ros-humble-diagnostic-msgs
 
 ### Build and Source the package
 ### Run The Node
